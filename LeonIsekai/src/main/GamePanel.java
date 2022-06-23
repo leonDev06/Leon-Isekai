@@ -7,8 +7,8 @@ import java.awt.Graphics2D;
 
 import javax.swing.JPanel;
 
-import entity.Entity;
 import entity.Player;
+import tiles.TileManager;
 
 @SuppressWarnings("serial")
 public class GamePanel extends JPanel implements Runnable{
@@ -40,6 +40,9 @@ public class GamePanel extends JPanel implements Runnable{
 	
 	//Player Entity
 	Player player = new Player(this, keyH);
+	
+	//Background Tiles
+	TileManager tileManager = new TileManager(this);
 	
 	//THE FPS
 	private int FPS = 60;
@@ -127,6 +130,7 @@ public class GamePanel extends JPanel implements Runnable{
 		Graphics2D graphics = (Graphics2D)g;	//The paint brush
 		
 		player.draw(graphics);
+		tileManager.draw(graphics);
 		
 		//Garbage collect
 		graphics.dispose();

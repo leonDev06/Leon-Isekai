@@ -24,10 +24,10 @@ public class GamePanel extends JPanel implements Runnable{
 	public final int tileSize = originalTileSize * scale;	//Actual TileSize of the game	48*48 px
 	
 	//SIZE OF THE GAME SCREEN
-	final int maxScreenCol = 16; //of tileSize
-	final int maxScreenRow = 12; //of tileSize
-	final int screenWidth = tileSize * maxScreenCol;	//768px
-	final int screenHeight = tileSize *maxScreenRow;	//576px
+	public final int maxScreenCol = 16; //of tileSize
+	public final int maxScreenRow = 12; //of tileSize
+	public final int screenWidth = tileSize * maxScreenCol;	//768px
+	public final int screenHeight = tileSize *maxScreenRow;	//576px
 	
 	//DIMENSION OF THE SCREEN (576x768)
 	final Dimension screenDimension = new Dimension (screenWidth, screenHeight);
@@ -46,7 +46,7 @@ public class GamePanel extends JPanel implements Runnable{
 	
 	//THE FPS
 	private int FPS = 60;
-	
+	private boolean isFPSVisible;
 	
 	//Constructor
 	public GamePanel() {
@@ -66,11 +66,17 @@ public class GamePanel extends JPanel implements Runnable{
 	}
 	
 	public void startGameLoop() {
-		Thread loadingRes = player.getPlayerImage(); 
-		loadingRes.setPriority(10);
-		loadingRes.start();
+		//Load Player Resources
+		Thread loadingPlayerRes = player.getPlayerImage();
+		loadingPlayerRes.start();
+		
+		//Load Tile Resources
+		Thread loadingTileRes = tileManager.getTileImage();
+		loadingTileRes.start();
+		
 		//Wait until resources have finished loading
-		waitForThread(loadingRes);
+		waitForThread(loadingPlayerRes);
+		waitForThread(loadingTileRes);
 		
 		gameLoop = new Thread(this);
 		gameLoop.start();
@@ -91,9 +97,8 @@ public class GamePanel extends JPanel implements Runnable{
 		while(gameLoop != null) {
 			
 			currentTime = System.nanoTime();
-			
-			delta += (currentTime - lastTime)/drawInterval;
 			timer += (currentTime - lastTime);
+			delta += (currentTime - lastTime)/drawInterval;
 			lastTime = System.nanoTime();
 			
 			if(delta >= 1 ) {
@@ -105,11 +110,14 @@ public class GamePanel extends JPanel implements Runnable{
 				drawCount++;
 			}
 			
-			if(timer >= 1000000000) {
-				//System.out.println(drawCount);
+			showFPS(timer, drawCount);
+			
+			if(timer >= 1000000000 && isFPSVisible) {
+				System.out.println("FPS: "+drawCount);
 				drawCount = 0;
 				timer = 0;
 			}
+			
 			
 		}
 		System.out.println("GameLoop ended");
@@ -117,10 +125,7 @@ public class GamePanel extends JPanel implements Runnable{
 	
 	
 	public void update() {
-		
 		player.update();
-		
-		
 	}
 	public void paintComponent(Graphics g) {
 		super.paintComponent(g);
@@ -129,14 +134,30 @@ public class GamePanel extends JPanel implements Runnable{
 		//Converting Graphics g into a Graphics2D object
 		Graphics2D graphics = (Graphics2D)g;	//The paint brush
 		
-		player.draw(graphics);
 		tileManager.draw(graphics);
+		player.draw(graphics);
 		
 		//Garbage collect
 		graphics.dispose();
 		
 	}
 	
+	private void showFPS(long timer, int drawCount) {
+		if(keyH.zeroPressed) {
+			if(isFPSVisible) {
+				isFPSVisible = false;
+				System.out.println("Hide FPS");
+			}else {
+				isFPSVisible = true;
+				System.out.println("Show FPS");
+			}
+		}
+		
+		
+		
+		keyH.zeroPressed=false;
+		
+	}
 	private void waitForThread(Thread thread) {
 		try {
 			thread.join();

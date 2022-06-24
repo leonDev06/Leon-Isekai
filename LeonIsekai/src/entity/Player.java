@@ -24,13 +24,15 @@ public class Player extends Entity{
 	//Number of each animation of this entity
 	private final int animationMax = 4;
 	
+	//Debug
+	int callCounter = 0;
+	
 	//Constructors
 	public Player(GamePanel gp, KeyHandler keyHandler) {
 		this.gp=gp;
 		this.keyHandler=keyHandler;
 		
 		setDefaultValues();
-		getPlayerImage();
 		
 	}
 	
@@ -44,7 +46,7 @@ public class Player extends Entity{
 	public void update() {
 		//Update the Sprite displayed
 		spriteCount++;
-		if(spriteCount > 6) {
+		if(spriteCount > 5) {
 			spriteNum++;
 			if(spriteNum==animationMax) {
 				spriteNum=0;
@@ -60,9 +62,11 @@ public class Player extends Entity{
 		}
 		
 		//Update the player position as well as direction facing
+		
+		//Directional/Movement Keys
 		if(keyHandler.upPressed) {
 			direction = FACING_UP;
-			y = y - speed;
+			y -= speed;
 		}
 		if(keyHandler.leftPressed) {
 			direction = FACING_LEFT;
@@ -76,6 +80,7 @@ public class Player extends Entity{
 			direction = FACING_RIGHT;
 			x += speed;
 		}
+		
 	}
 	public void draw(Graphics2D graphics) {
 		//The image to be displayed. Will change depending on direction + animation
@@ -129,6 +134,9 @@ public class Player extends Entity{
 		downImages = new BufferedImage[4];
 		rightImages = new BufferedImage[4];
 		
+		//Display loading message on Console
+		System.out.println("Loading Player Images");
+		
 		//Load the image using a new thread
 		return new Thread(new LoadingImage());
 	}
@@ -165,10 +173,9 @@ public class Player extends Entity{
 			//load the images in their respective arrays
 			loadImagesToArray();
 			
-			
-			
-			
 		}
+		
+		
 		private void loadImagesToArray() {
 			upImages = new BufferedImage [] {up0,up1,up2,up3};
 			leftImages = new BufferedImage[] {left0,left1,left2,left3};
@@ -177,6 +184,5 @@ public class Player extends Entity{
 		}
 		
 	}
-	
 	
 }
